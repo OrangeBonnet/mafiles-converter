@@ -17,23 +17,23 @@ import os
 from json import loads, dumps
 
 
-def get_from_mafile(mafile, argument):
-    file = open(mafile, 'r', encoding='ISO-8859-1').read()
-    if argument in 'account_name':
-        return loads(file).get('account_name')
-    elif argument in 'steam_id':
-        return loads(file).get('Session').get('SteamID')
-    elif argument in 'shared_secret':
-        return loads(file).get('shared_secret')
-    elif argument in 'identity_secret':
-        return loads(file).get('identity_secret')
-    elif argument in 'all':
-        return file
-    else:
-        raise RuntimeError("Incorrect value!")
+def get_from_mafile(mafile: str, argument: str) -> str:
+    with open(mafile, 'r', encoding='ISO-8859-1') as file:
+        if argument in 'account_name':
+            return loads(file.read()).get('account_name')
+        elif argument in 'steam_id':
+            return loads(file.read()).get('Session').get('SteamID')
+        elif argument in 'shared_secret':
+            return loads(file.read()).get('shared_secret')
+        elif argument in 'identity_secret':
+            return loads(file.read()).get('identity_secret')
+        elif argument in 'all':
+            return file.read()
+        else:
+            raise RuntimeError("Incorrect value!")
 
 
-def create_name_file(mafile, name_type):
+def create_name_file(mafile: str, name_type: str) -> str:
     if name_type in "account_name":
         return get_from_mafile(mafile, "account_name")
     elif name_type in "steam_id64":
@@ -42,35 +42,34 @@ def create_name_file(mafile, name_type):
         return f'{get_from_mafile(mafile, "account_name")} [{get_from_mafile(mafile, "steam_id")}]'
 
 
-def create_data_save(mafile, data_type):
+def create_data_save(mafile: str, data_type: str) -> str:
     if data_type in "all":
         return get_from_mafile(mafile, "all")
     elif data_type in "sha_ide":
         return dumps({'shared_secret': get_from_mafile(mafile, "shared_secret"),
-                'identity_secret': get_from_mafile(mafile, "identity_secret")})
+                'identity_secret': get_from_mafile(mafile, "identity_secret")}, indent=4)
     elif data_type in "id_name_sha_ide":
         return dumps({"steam_id": get_from_mafile(mafile, "steam_id"),
                 "account_name": get_from_mafile(mafile, "account_name"),
                 "shared_secret": get_from_mafile(mafile, "shared_secret"),
-                "identity_secret": get_from_mafile(mafile, "identity_secret")})
+                "identity_secret": get_from_mafile(mafile, "identity_secret")}, indent=4)
 
 
-def convert(path_mafiles, name_type, extension_type, data_save_type, path_save_files):
-    mafiles = glob.glob(path_mafiles + '/*.maFile')
+def convert(mafiles_path: str, name_type: str, extension_type: str, data_save_type: str, path_save_files: str):
+    mafiles = glob.glob(mafiles_path + '/*.maFile')
     for mafile in mafiles:
         file_name = str(create_name_file(mafile, name_type)) + "." + extension_type
         file_data = create_data_save(mafile, data_save_type)
-        file = open(path_save_files + '\\' + file_name, 'w+')
-        file.write(file_data)
-        file.close()
+        with open(f'{path_save_files}\\{file_name}', 'w+') as file:
+            file.write(file_data)
         print(f'[{mafiles.index(mafile) + 1}/{len(mafiles)}] Created a new file - {file_name}')
 
 
 if __name__ == '__main__':
     while True:
         print('Specify the folder with your maFiles')
-        path_mafiles = input()
-        if glob.glob(path_mafiles + "/*.maFile"):
+        mafiles_path = input()
+        if glob.glob(f'{mafiles_path}/*.maFile'):
             break
         else:
             print('There are no ".maFile" files inside the directory')
@@ -139,8 +138,8 @@ if __name__ == '__main__':
             print('Incorrect value!')
 
     try:
-        convert(path_mafiles, choice_filename, choice_extension, choice_data_save, path_save_files)
+        convert(mafiles_path, choice_filename, choice_extension, choice_data_save, path_save_files)
     finally:
-        print('\nFinished work!')
-        print('\nPress any key')
+        print('Finished work!', end='\n\n')
+        print('Press any key')
         input()

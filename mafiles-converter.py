@@ -55,7 +55,8 @@ def create_data_save(mafile: str, data_type: str) -> str:
                 "identity_secret": get_from_mafile(mafile, "identity_secret")}, indent=4)
 
 
-def convert(mafiles_path: str, name_type: str, extension_type: str, data_save_type: str, path_save_files: str):
+def convert(mafiles_path: str, name_type: str, extension_type: str,
+            data_save_type: str, path_save_files: str):
     mafiles = glob.glob(mafiles_path + '/*.maFile')
     for mafile in mafiles:
         file_name = str(create_name_file(mafile, name_type)) + "." + extension_type
@@ -63,6 +64,7 @@ def convert(mafiles_path: str, name_type: str, extension_type: str, data_save_ty
         with open(f'{path_save_files}\\{file_name}', 'w+') as file:
             file.write(file_data)
         print(f'[{mafiles.index(mafile) + 1}/{len(mafiles)}] Created a new file - {file_name}')
+    return True
 
 
 if __name__ == '__main__':
@@ -138,7 +140,8 @@ if __name__ == '__main__':
             print('Incorrect value!')
 
     try:
-        convert(mafiles_path, choice_filename, choice_extension, choice_data_save, path_save_files)
+        convert(mafiles_path, choice_filename, choice_extension,
+                choice_data_save, path_save_files)
     finally:
         print('Finished work!', end='\n\n')
         print('Press any key')

@@ -144,5 +144,5 @@ if __name__ == '__main__':
                 choice_data_save, path_save_files)
     finally:
         print('Finished work!', end='\n\n')
-        print('Press any key')
+        print('Press Enter to app close...')
         input()
